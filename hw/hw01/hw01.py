@@ -14,9 +14,9 @@ def a_plus_abs_b(a, b):
     ['return f(a, b)']
     """
     if b < 0:
-        f = _____
+        f = sub
     else:
-        f = _____
+        f = add
     return f(a, b)
 
 
@@ -38,7 +38,8 @@ def two_of_three(x, y, z):
     >>> [type(x).__name__ for x in ast.parse(inspect.getsource(two_of_three)).body[0].body]
     ['Expr', 'Return']
     """
-    return _____
+
+    return x * x + y * y + z * z - pow(max(x, y, z), 2)
 
 
 def largest_factor(n):
@@ -52,6 +53,11 @@ def largest_factor(n):
     1
     """
     "*** YOUR CODE HERE ***"
+    prime = 1
+    for i in range(2, n):
+        if n % i == 0:
+            prime = max(i, prime)
+    return prime
 
 
 def if_function(condition, true_result, false_result):
@@ -86,6 +92,7 @@ def with_if_statement():
         return false_func()
 
 
+# 在调用if_function之前会将cond(), true_func(), false_func()都调用，而不是在
 def with_if_function():
     """
     >>> result = with_if_function()
@@ -99,14 +106,18 @@ def with_if_function():
 
 def cond():
     "*** YOUR CODE HERE ***"
+    # print("61A")
+    return False
 
 
 def true_func():
     "*** YOUR CODE HERE ***"
+    print("Welcome to")
 
 
 def false_func():
     "*** YOUR CODE HERE ***"
+    print("61A")
 
 
 def hailstone(n):
@@ -125,3 +136,17 @@ def hailstone(n):
     7
     """
     "*** YOUR CODE HERE ***"
+    cnt = 1
+
+    while n != 1:
+        print(n)
+        if n % 2 == 0:
+            n //= 2
+        else:
+            n = n * 3 + 1
+        cnt += 1
+    print(n)
+    return cnt
+
+if __name__ == '__main__':
+    print(hailstone(27))
