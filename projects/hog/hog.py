@@ -97,24 +97,13 @@ def more_boar(player_score, opponent_score):
     # BEGIN PROBLEM 4
     "*** YOUR CODE HERE ***"
     # END PROBLEM 4
-    a_list = [0]  # 可能为1位数，前面直接补一个0
-    b_list = [0]
-    t = max(player_score, opponent_score)
-    while t != 0:
-        a = player_score % 10
-        b = opponent_score % 10
-        a_list.append(a)
-        b_list.append(b)
-        t //= 10
-        player_score //= 10
-        opponent_score //= 10
-    a1 = a_list[-1]
-    a2 = a_list[-2]
-    b1 = b_list[-1]
-    b2 = b_list[-2]
-    if a1 < b1 and a2 < b2:
+    # a_list = [0]  # 可能为1位数，前面直接补一个0
+    ps = str(player_score) if player_score >= 10 else '0' + str(player_score)
+    os = str(opponent_score) if opponent_score >= 10 else '0' + str(opponent_score)
+    if ps[0] < os[0] and ps[1] < os[1]:
         return True
-    return False
+    else:
+        return False
 
 
 def next_player(who):
@@ -153,40 +142,22 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
     who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
     # BEGIN PROBLEM 5
     "*** YOUR CODE HERE ***"
-    while 1:
-        num0 = strategy0(score0, score1)
-        score = take_turn(num0, score1, dice, goal)
-        score0 += score
-        if score0 >= goal :
-            break
-        while more_boar(score0, score1):
-            num0 = strategy0(score0, score1)
-            score = take_turn(num0, score1, dice, goal)
-            score0 += score
-            if score0 >= goal:
-                break
-        if score0 >= goal :
-            break
-        say(score0, score1)
+    while score0 < goal and score1 < goal:
+        if who == 0:
+            score0 += take_turn(strategy0(score0, score1), score1, dice, goal)
+            if not more_boar(score0, score1):
+                who = next_player(who)
+        else:
+            score1 += take_turn(strategy1(score1, score0), score0, dice, goal)
+            if not more_boar(score1, score0):
+                who = next_player(who)
 
-        num1 = strategy1(score1, score0)
-        score = take_turn(num1, score0, dice, goal)
-        score1 += score
-        if score1 >= goal:
-            break
-        while more_boar(score1, score0):
-            num1 = strategy1(score1, score0)
-            score = take_turn(num1, score0, dice, goal)
-            score1 += score
-            if score1 >= goal:
-                break
-        if score1 >= goal:
-            break
-        say(score1, score0)
-    # END PROBLEM 5
-    # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
-    # BEGIN PROBLEM 6
+        # END PROBLEM 5
+        # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
+        # BEGIN PROBLEM 6
+        say = say(score0, score1)
     "*** YOUR CODE HERE ***"
+
     # END PROBLEM 6
     return score0, score1
 
@@ -275,6 +246,24 @@ def announce_highest(who, last_score=0, running_high=0):
     assert who == 0 or who == 1, 'The who argument should indicate a player.'
     # BEGIN PROBLEM 7
     "*** YOUR CODE HERE ***"
+
+    def say(score0, score1):
+        nonlocal running_high  # nonlocal用来声明变量不处于当前的函数当中
+        score = 0
+        if who == 0:
+            score = score0
+        else:
+            score = score1
+        dscore = score - last_score
+        # print("DEBUG ", dscore)
+        # print("DEBUG" , running_high)
+        if dscore > running_high:
+            print("Player",who,"has reached a new maximum point gain.", dscore, "point(s)!")
+        else :
+            dscore = running_high
+        return announce_highest(who, score, dscore)
+
+    return say
     # END PROBLEM 7
 
 
@@ -312,11 +301,18 @@ def make_averaged(original_function, trials_count=1000):
 
     >>> dice = make_test_dice(4, 2, 5, 1)
     >>> averaged_dice = make_averaged(roll_dice, 1000)
-    >>> averaged_dice(1, dice)
+    >>> averaged_dice(1, dice) #nums,dice
     3.0
     """
     # BEGIN PROBLEM 8
     "*** YOUR CODE HERE ***"
+    def get_average(*args):
+        nonlocal trials_count
+        result = 0
+        for i in range(trials_count):
+            result += original_function(*args)
+        return result/trials_count
+    return get_average
     # END PROBLEM 8
 
 
@@ -331,6 +327,15 @@ def max_scoring_num_rolls(dice=six_sided, trials_count=1000):
     """
     # BEGIN PROBLEM 9
     "*** YOUR CODE HERE ***"
+    averaged_dice = make_averaged(roll_dice,trials_count)
+    score = -1
+    num = 0
+    for i in range(1,11):
+        tscore = averaged_dice(i,dice)
+        if tscore > score :
+            num = i
+            score = tscore
+    return num
     # END PROBLEM 9
 
 
@@ -371,7 +376,10 @@ def piggypoints_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     rolls NUM_ROLLS otherwise.
     """
     # BEGIN PROBLEM 10
-    return 6  # Replace this statement
+    if piggy_points(opponent_score) >= cutoff:
+        return 0
+    else:
+        return num_rolls  # Replace this statement
     # END PROBLEM 10
 
 
@@ -381,7 +389,10 @@ def more_boar_strategy(score, opponent_score, cutoff=8, num_rolls=6):
     Otherwise, it rolls NUM_ROLLS.
     """
     # BEGIN PROBLEM 11
-    return 6  # Replace this statement
+    if more_boar(score+piggy_points(opponent_score),opponent_score):
+        return 0
+    else:
+        return piggypoints_strategy(score,opponent_score,cutoff,num_rolls)
     # END PROBLEM 11
 
 
