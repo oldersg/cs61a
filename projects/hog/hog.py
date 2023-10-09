@@ -402,7 +402,13 @@ def final_strategy(score, opponent_score):
     *** YOUR DESCRIPTION HERE ***
     """
     # BEGIN PROBLEM 12
-    return 6  # Replace this statement
+    if score <= 80:
+        return more_boar_strategy(score, opponent_score, cutoff=8, num_rolls=6)
+    elif score <= 90 and score > opponent_score:
+        return piggypoints_strategy(score, opponent_score, cutoff=7, num_rolls=1)
+    else:
+        return 2
+    # Replace this statement
     # END PROBLEM 12
 
 
