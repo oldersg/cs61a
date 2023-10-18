@@ -63,10 +63,14 @@ def accumulate(combiner, base, n, term):
     16
     """
     "*** YOUR CODE HERE ***"
-    ans = base
-    for i in range(1, n + 1):
-        ans = combiner(ans, term(i))
-    return ans
+    # ans = base
+    # for i in range(1, n + 1):
+    #     ans = combiner(ans, term(i))
+    # return ans
+    #递归方式，在hw07中使用
+    if n == 0:
+        return base
+    return combiner(term(n),accumulate(combiner,base,n-1,term))
 
 
 def summation_using_accumulate(n, term):
